@@ -1,0 +1,60 @@
+{
+    "containerDefinitions": [
+        {
+            "essential": true,
+            "image": "postgres",
+            "name": "db"
+        },
+        {
+            "essential": true,
+            "image": "nginx",
+            "mountPoints": [
+                {
+                    "containerPath": "/src",
+                    "sourceVolume": "_Src"
+                },
+                {
+                    "containerPath": "/etc/nginx/conf.d",
+                    "sourceVolume": "_ConfigNginx"
+                }
+            ],
+            "name": "nginx",
+            "portMappings": [
+                {
+                    "containerPort": 8000,
+                    "hostPort": 8000
+                }
+            ]
+        },
+        {
+            "command": [
+                "bash",
+                "-c",
+                "python manage.py makemigrations && python manage.py migrate && gunicorn emprl.wsgi -b 0.0.0.0:8000"
+            ],
+            "essential": true,
+            "mountPoints": [
+                {
+                    "containerPath": "/src",
+                    "sourceVolume": "_Src"
+                }
+            ],
+            "name": "web"
+        }
+    ],
+    "family": "",
+    "volumes": [
+        {
+            "host": {
+                "sourcePath": "./src"
+            },
+            "name": "_Src"
+        },
+        {
+            "host": {
+                "sourcePath": "./config/nginx"
+            },
+            "name": "_ConfigNginx"
+        }
+    ]
+}
